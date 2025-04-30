@@ -1,0 +1,15 @@
+.root {
+   -fx-background-color: dimgrey;
+   -fx-font-size: 14pt;
+}
+
+.label {
+   -fx-text-fill: white;
+}
+
+.button {
+   -fx-background-color: tomato;
+   -fx-border-radius: 20;
+   -fx-background-radius: 20;
+   -fx-padding: 5;
+}
