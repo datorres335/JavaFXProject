@@ -43,6 +43,16 @@
             <artifactId>javafx-media</artifactId>
             <version>17.0.2</version> <!-- Replace with your JavaFX version -->
         </dependency>
+        <dependency>
+            <groupId>com.calendarfx</groupId>
+            <artifactId>view</artifactId>
+            <version>11.12.7</version> <!-- Check https://dlsc.com/products/calendarfx/ for latest -->
+        </dependency>
+        <dependency>
+            <groupId>fr.brouillard.oss</groupId>
+            <artifactId>cssfx</artifactId>
+            <version>11.6</version>
+        </dependency>
     </dependencies>
 
     <build>

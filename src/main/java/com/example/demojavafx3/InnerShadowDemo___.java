@@ -8,7 +8,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.InnerShadow;
 
-public class InnerShadowDemo extends Application
+public class InnerShadowDemo___ extends Application
 {
    public static void main(String[] args)
    {

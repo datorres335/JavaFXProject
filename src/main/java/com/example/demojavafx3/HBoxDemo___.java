@@ -1,11 +1,11 @@
 package com.example.demojavafx3;
 
 import javafx.application.Application;
-import javafx.stage.Stage;
-import javafx.scene.Scene;
-import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  *  HBox Demo
@@ -33,7 +33,7 @@ public class HBoxDemo___ extends Application
       button3.getStyleClass().add("button-black");
       
       // Create an HBox.
-      HBox hbox = new HBox(10, button1, button2, button3);
+      VBox hbox = new VBox(10, button1, button2, button3);
       hbox.setPadding(new Insets(10));
       
       // Create a Scene with the HBox as its root node.
