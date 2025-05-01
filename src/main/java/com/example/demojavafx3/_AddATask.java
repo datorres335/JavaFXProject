@@ -60,12 +60,37 @@ public class _AddATask extends Application {
         TextField locField = new TextField();
         locField.setPromptText("Enter the location of task");
 
+        Button submitButton = new Button("Submit Task");
+        submitButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
+        submitButton.setPrefWidth(120);
+
+// Create a container for the submit button
+        HBox submitContainer = new HBox(submitButton);
+        submitContainer.setAlignment(Pos.CENTER);
+
         form.getChildren().addAll(
                 nameLabel, nameField,
                 dateLabel, datePicker,
                 descLabel, descArea,
-                locLabel, locField
+                locLabel, locField,
+                submitContainer
         );
+
+        // Add button click handler
+        submitButton.setOnAction(event -> {
+            // Validate inputs
+            if (nameField.getText().isEmpty() || datePicker.getValue() == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Missing Required Fields");
+                alert.setContentText("Please fill in all required fields (Task Name and Date)");
+                alert.showAndWait();
+                return;
+            }
+
+            // Close the window after successful submission
+            primaryStage.close();
+        });
 
         VBox root = new VBox(0, header, form);
         Scene scene = new Scene(root, 600, 500);
