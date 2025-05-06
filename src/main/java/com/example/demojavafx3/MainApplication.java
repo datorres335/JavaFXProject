@@ -41,6 +41,10 @@ public class MainApplication extends Application {
         primaryStage.show();
     }
 
+    public _CalenderPage getCalendarPage() {
+        return calendarPageComponent;
+    }
+
     // Methods to switch between views
     public void showTaskListView() {
         mainLayout.setCenter(listOfTasksComponent.getView());

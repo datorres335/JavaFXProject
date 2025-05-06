@@ -195,6 +195,14 @@ public class _AddATask {
                 showSuccessAlert("Task Created", "New task created successfully!");
             }
 
+            // Refresh the calendar if it's initialized
+            if (mainApp instanceof MainApplication) {
+                _CalenderPage calendarPage = mainApp.getCalendarPage();
+                if (calendarPage != null) {
+                    calendarPage.refreshCalendar();
+                }
+            }
+
             updateTaskList(); // Update the task list in the main view
 
             // Clear form and reset state
