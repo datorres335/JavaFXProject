@@ -3,10 +3,8 @@ package com.example.demojavafx3;
 import com.calendarfx.view.MonthView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -14,18 +12,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-public class _CalenderPage extends Application {
+public class _CalenderPage {
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Calendar View");
+    private MainApplication mainApp;
+    private BorderPane view;
+
+    public _CalenderPage(MainApplication mainApp) {
+        this.mainApp = mainApp;
+        createView();
+    }
+
+    private void createView() {
+        view = new BorderPane();
 
         // Month selection combo box
         ComboBox<String> monthComboBox = new ComboBox<>();
@@ -42,11 +46,13 @@ public class _CalenderPage extends Application {
         HBox titleBox = new HBox(10, monthComboBox, yearField);
         titleBox.setAlignment(Pos.CENTER_LEFT);
 
-
-
         // Top right buttons
         Button viewTasksBtn = new Button("🔍 View All Tasks");
+        viewTasksBtn.setOnAction(e -> mainApp.showTaskListView());
+
         Button addTaskBtn = new Button("➕   Add a Task   ");
+        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView());
+
         VBox rightButtons = new VBox(10, viewTasksBtn, addTaskBtn);
         rightButtons.setAlignment(Pos.CENTER_RIGHT);
 
@@ -67,13 +73,12 @@ public class _CalenderPage extends Application {
         monthView.setShowWeekNumbers(false);
 
         // Layout setup
-        BorderPane root = new BorderPane();
-        VBox topSection = new VBox(10, header, rightButtons);
-        root.setTop(topSection);
+        VBox topSection = new VBox(10, header);
+        view.setTop(topSection);
 
         VBox centerContent = new VBox(10, monthYearLabel, monthView);
         centerContent.setAlignment(Pos.TOP_CENTER);
-        root.setCenter(centerContent);
+        view.setCenter(centerContent);
 
         monthComboBox.setOnAction(event -> {
             String selectedMonth = monthComboBox.getValue();
@@ -138,12 +143,8 @@ public class _CalenderPage extends Application {
             }
         });
 
-        BorderPane.setMargin(rightButtons, new Insets(10));
+        BorderPane.setMargin(topSection, new Insets(10));
         BorderPane.setMargin(centerContent, new Insets(10));
-
-        Scene scene = new Scene(root, 800, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     private void updateMonthYearLabel(Label label) {
@@ -152,7 +153,7 @@ public class _CalenderPage extends Application {
         label.setText(formattedDate);
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    public BorderPane getView() {
+        return view;
     }
 }

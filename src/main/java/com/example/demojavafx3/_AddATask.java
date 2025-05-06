@@ -1,32 +1,39 @@
 package com.example.demojavafx3;
 
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import static com.example.demojavafx3._ListOfTasks.updateTaskList;
 
-public class _AddATask extends Application {
+public class _AddATask {
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Add a Task");
+    private MainApplication mainApp;
+    private BorderPane view;
+
+    public _AddATask(MainApplication mainApp) {
+        this.mainApp = mainApp;
+        createView();
+    }
+
+    private void createView() {
+        view = new BorderPane();
 
         // Header
         Label title = new Label("Add a Task");
         title.setStyle("-fx-font-size: 40px; -fx-font-weight: bold; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-padding: 5; -fx-background-radius: 15;");
-        HBox titleBox = new HBox(10, title);//HBox(10, leftArrow, title, rightArrow);
+        HBox titleBox = new HBox(10, title);
         titleBox.setAlignment(Pos.CENTER_LEFT);
 
         Button calendarViewBtn = new Button("📅 Calendar View");
+        calendarViewBtn.setOnAction(e -> mainApp.showCalendarView());
+
         Button viewTasksBtn = new Button("🔍 View All Tasks");
+        viewTasksBtn.setOnAction(e -> mainApp.showTaskListView());
+
         CheckBox completeCheck = new CheckBox("Complete");
         Button deleteBtn = new Button("🗑");
         Tooltip deleteTooltip = new Tooltip("Delete task");
@@ -67,7 +74,7 @@ public class _AddATask extends Application {
         submitButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
         submitButton.setPrefWidth(120);
 
-// Create a container for the submit button
+        // Create a container for the submit button
         HBox submitContainer = new HBox(submitButton);
         submitContainer.setAlignment(Pos.CENTER);
 
@@ -106,29 +113,21 @@ public class _AddATask extends Application {
             alert.setContentText("Task saved successfully!");
             alert.showAndWait();
 
-            primaryStage.close();
+            // Clear the form fields
+            nameField.clear();
+            datePicker.setValue(null);
+            descArea.clear();
+            locField.clear();
+
+            // Switch back to the task list view
+            mainApp.showTaskListView();
         });
 
-
-        VBox root = new VBox(0, header, form);
-        Scene scene = new Scene(root, 600, 500);
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        view.setTop(header);
+        view.setCenter(form);
     }
 
-    public static void openWindow() {
-        Platform.runLater(() -> {
-            try {
-                Stage stage = new Stage();
-                new _AddATask().start(stage);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public static void main(String[] args) {
-        launch(args);
+    public BorderPane getView() {
+        return view;
     }
 }

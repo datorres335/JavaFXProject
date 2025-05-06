@@ -1,26 +1,29 @@
 package com.example.demojavafx3;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.util.List;
 
-public class _ListOfTasks extends Application {
+public class _ListOfTasks {
 
-    private static VBox taskList; // Keep taskList as a class member
+    private MainApplication mainApp;
+    private BorderPane view;
+    private static VBox taskList;
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("List of Tasks");
+    public _ListOfTasks(MainApplication mainApp) {
+        this.mainApp = mainApp;
+        createView();
+    }
+
+    private void createView() {
+        view = new BorderPane();
 
         // Title
         Label title = new Label("List of Tasks");
@@ -31,11 +34,11 @@ public class _ListOfTasks extends Application {
 
         // Top right buttons
         Button calendarViewBtn = new Button("📅 Calendar View");
+        calendarViewBtn.setOnAction(e -> mainApp.showCalendarView());
+
         Button addTaskBtn = new Button("➕   Add a Task   ");
-        addTaskBtn.setOnAction(e -> {
-            _AddATask.openWindow();
-            updateTaskList(); // Call updateTaskList when a new task is added.
-        });
+        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView());
+
         VBox rightButtons = new VBox(10, calendarViewBtn, addTaskBtn);
         rightButtons.setAlignment(Pos.CENTER_RIGHT);
 
@@ -46,24 +49,25 @@ public class _ListOfTasks extends Application {
         header.setPadding(new Insets(10, 20, 10, 20));
 
         // List of tasks
-        taskList = new VBox(5); // Initialize taskList here
+        taskList = new VBox(5);
         taskList.setPadding(new Insets(10));
-        updateTaskList(); // Initial population of task list
+        updateTaskList();
 
         ScrollPane scrollPane = new ScrollPane(taskList);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: #f9f9f9;");
 
-        VBox root = new VBox(header, scrollPane);
-        Scene scene = new Scene(root, 700, 500);
+        view.setTop(header);
+        view.setCenter(scrollPane);
+    }
 
-        primaryStage.setScene(scene);
-        primaryStage.show();
+    public BorderPane getView() {
+        return view;
     }
 
     public static void updateTaskList() {
-        taskList.getChildren().clear(); // Clear existing tasks
-        List<String[]> tasks = _TaskStorage.getTasks(); // Get the updated task list
+        taskList.getChildren().clear();
+        List<String[]> tasks = _TaskStorage.getTasks();
 
         for (String[] task : tasks) {
             HBox row = new HBox(10);
@@ -75,9 +79,5 @@ public class _ListOfTasks extends Application {
             row.getChildren().addAll(date, desc);
             taskList.getChildren().add(row);
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
