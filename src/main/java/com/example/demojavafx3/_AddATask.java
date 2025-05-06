@@ -1,6 +1,7 @@
 package com.example.demojavafx3;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,6 +10,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import static com.example.demojavafx3._ListOfTasks.updateTaskList;
 
 public class _AddATask extends Application {
 
@@ -78,7 +81,6 @@ public class _AddATask extends Application {
 
         // Add button click handler
         submitButton.setOnAction(event -> {
-            // Validate inputs
             if (nameField.getText().isEmpty() || datePicker.getValue() == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -88,15 +90,42 @@ public class _AddATask extends Application {
                 return;
             }
 
-            // Close the window after successful submission
+            // Save to shared task storage
+            String name = nameField.getText();
+            String date = datePicker.getValue().toString();
+            String desc = descArea.getText();
+            String loc = locField.getText();
+
+            _TaskStorage.addTask(name, date, desc, loc);
+            updateTaskList(); // Update the task list in the main view
+
+            // Optionally show a confirmation
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Task Saved");
+            alert.setHeaderText(null);
+            alert.setContentText("Task saved successfully!");
+            alert.showAndWait();
+
             primaryStage.close();
         });
+
 
         VBox root = new VBox(0, header, form);
         Scene scene = new Scene(root, 600, 500);
 
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    public static void openWindow() {
+        Platform.runLater(() -> {
+            try {
+                Stage stage = new Stage();
+                new _AddATask().start(stage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static void main(String[] args) {
