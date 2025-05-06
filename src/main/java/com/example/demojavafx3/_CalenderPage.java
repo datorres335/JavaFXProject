@@ -51,7 +51,7 @@ public class _CalenderPage {
         viewTasksBtn.setOnAction(e -> mainApp.showTaskListView());
 
         Button addTaskBtn = new Button("➕   Add a Task   ");
-        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView());
+        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView(null));
 
         VBox rightButtons = new VBox(10, viewTasksBtn, addTaskBtn);
         rightButtons.setAlignment(Pos.CENTER_RIGHT);

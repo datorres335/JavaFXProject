@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -16,9 +17,11 @@ public class _ListOfTasks {
     private MainApplication mainApp;
     private BorderPane view;
     private static VBox taskList;
+    private static _ListOfTasks instance; // Add a static reference to the current instance
 
     public _ListOfTasks(MainApplication mainApp) {
         this.mainApp = mainApp;
+        instance = this; // Store the instance
         createView();
     }
 
@@ -37,7 +40,7 @@ public class _ListOfTasks {
         calendarViewBtn.setOnAction(e -> mainApp.showCalendarView());
 
         Button addTaskBtn = new Button("➕   Add a Task   ");
-        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView());
+        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView(null)); // Pass null for a new task
 
         VBox rightButtons = new VBox(10, calendarViewBtn, addTaskBtn);
         rightButtons.setAlignment(Pos.CENTER_RIGHT);
@@ -51,7 +54,7 @@ public class _ListOfTasks {
         // List of tasks
         taskList = new VBox(5);
         taskList.setPadding(new Insets(10));
-        updateTaskList();
+        refreshTaskList();
 
         ScrollPane scrollPane = new ScrollPane(taskList);
         scrollPane.setFitToWidth(true);
@@ -65,19 +68,69 @@ public class _ListOfTasks {
         return view;
     }
 
-    public static void updateTaskList() {
+    public void refreshTaskList() {
         taskList.getChildren().clear();
         List<String[]> tasks = _TaskStorage.getTasks();
 
-        for (String[] task : tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            String[] task = tasks.get(i);
+            final int taskIndex = i; // Need final variable for lambda
+
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setPadding(new Insets(5));
             row.setStyle("-fx-background-color: #eeeeee; -fx-background-radius: 4;");
+
+            // date, name, desc, loc
             Label date = new Label(task[0]);
-            Label desc = new Label(task[1]);
-            row.getChildren().addAll(date, desc);
+            Label name = new Label(task[1]);
+            Label desc = new Label(task[2]);
+            Label loc = new Label(task[3]);
+
+            row.getChildren().addAll(date, name, desc, loc);
+
+            // Make the row clickable
+            row.setOnMouseEntered(e -> {
+                row.setStyle("-fx-background-color: #e0e0e0; -fx-background-radius: 4; -fx-cursor: hand;");
+            });
+
+            row.setOnMouseExited(e -> {
+                row.setStyle("-fx-background-color: #eeeeee; -fx-background-radius: 4;");
+            });
+
+            row.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                // Navigate to edit task view with the selected task
+                mainApp.showAddTaskView(task);
+            });
+
             taskList.getChildren().add(row);
+        }
+    }
+
+    // Static method for updating from other classes
+    public static void updateTaskList() {
+        // This is a static method that will be called from other classes
+        // We need to make sure the taskList is initialized before updating
+        if (taskList != null) {
+            // If we have an instance, use its refreshTaskList method to get clickable rows
+            if (instance != null) {
+                instance.refreshTaskList();
+            } else {
+                // Fallback if no instance is available
+                taskList.getChildren().clear();
+                List<String[]> tasks = _TaskStorage.getTasks();
+
+                for (String[] task : tasks) {
+                    HBox row = new HBox(10);
+                    row.setAlignment(Pos.CENTER_LEFT);
+                    row.setPadding(new Insets(5));
+                    row.setStyle("-fx-background-color: #eeeeee; -fx-background-radius: 4;");
+                    Label date = new Label(task[0]);
+                    Label desc = new Label(task[1]);
+                    row.getChildren().addAll(date, desc);
+                    taskList.getChildren().add(row);
+                }
+            }
         }
     }
 }

@@ -40,11 +40,20 @@ public class MainApplication extends Application {
     public void showTaskListView() {
         mainLayout.setCenter(listOfTasksComponent.getView());
         primaryStage.setTitle("List of Tasks");
+        // Refresh the task list to ensure it's up to date
+        listOfTasksComponent.refreshTaskList();
     }
 
-    public void showAddTaskView() {
+    public void showAddTaskView(String[] taskToEdit) {
+        // Set up the add task view for editing if a task is provided
+        addATaskComponent.setupForEditing(taskToEdit);
         mainLayout.setCenter(addATaskComponent.getView());
-        primaryStage.setTitle("Add a Task");
+        primaryStage.setTitle(taskToEdit == null ? "Add a Task" : "Edit Task");
+    }
+
+    // Overload for when no task is provided (new task)
+    public void showAddTaskView() {
+        showAddTaskView(null);
     }
 
     public void showCalendarView() {
