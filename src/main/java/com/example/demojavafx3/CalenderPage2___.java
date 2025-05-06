@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class _CalenderPage2 extends Application {
+public class CalenderPage2___ extends Application {
 
     @Override
     public void start(Stage primaryStage) {

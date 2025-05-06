@@ -1,0 +1,119 @@
+.calendar-view {
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 10 10;
+    -fx-padding: 10;
+}
+
+/* Custom styling for calendar cells */
+.calendar-view .day-cell {
+    -fx-min-height: 80px;
+    -fx-pref-height: 100px;
+    -fx-background-radius: 5;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0.5;
+    -fx-padding: 5;
+}
+
+/* Move day of month label to top right */
+.calendar-view .day-of-month-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-alignment: TOP_RIGHT;
+    -fx-text-alignment: RIGHT;
+    -fx-translate-x: 5;
+    -fx-translate-y: -5;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-position: absolute;
+    -fx-top: 2;
+    -fx-right: 5;
+}
+
+/* Move day of week label to top right */
+.calendar-view .day-of-week-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #7f8c8d;
+    -fx-alignment: TOP_RIGHT;
+    -fx-text-alignment: RIGHT;
+    -fx-translate-x: 5;
+    -fx-translate-y: -5;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-position: absolute;
+    -fx-top: 2;
+    -fx-right: 25;
+}
+
+/* Style for today's cell */
+.calendar-view .today {
+    -fx-background-color: #e3f2fd;
+    -fx-border-color: #3498db;
+    -fx-border-width: 1;
+}
+
+/* Style for weekend cells */
+.calendar-view .weekend-day {
+    -fx-background-color: #f8f9fa;
+}
+
+/* Style for selected cell */
+.calendar-view .selected {
+    -fx-background-color: #d4edda;
+    -fx-border-color: #28a745;
+    -fx-border-width: 1;
+}
+
+/* Month view grid styling */
+.calendar-view .month-grid {
+    -fx-grid-lines-visible: true;
+    -fx-hgap: 0;
+    -fx-vgap: 0;
+}
+
+/* Style for hover effect */
+.calendar-view .day-cell:hover {
+    -fx-background-color: #f0f7ff;
+    -fx-cursor: hand;
+}
+
+/* Style for the day name container */
+.calendar-view .day-name-container {
+    -fx-alignment: TOP_RIGHT;
+    -fx-padding: 2 5 0 0;
+}
+
+/* Style for the day number container */
+.calendar-view .day-number-container {
+    -fx-alignment: TOP_RIGHT;
+    -fx-padding: 0 5 0 0;
+}
+
+/* Task preview styling */
+.task-preview {
+    -fx-font-size: 11px;
+    -fx-text-fill: #2c3e50;
+    -fx-background-radius: 3;
+    -fx-padding: 2 4;
+    -fx-max-width: infinity;
+    -fx-pref-width: 100%;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.task-preview:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 2, 0, 0, 1);
+}
+
+.task-preview.task-completed {
+    -fx-text-fill: #7f8c8d;
+    -fx-strikethrough: true;
+    -fx-opacity: 0.7;
+}
+
+.task-more-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+    -fx-padding: 2 4;
+}
