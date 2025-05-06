@@ -22,7 +22,12 @@ public class MainApplication extends Application {
 
         // Initialize the main layout
         mainLayout = new BorderPane();
-        Scene scene = new Scene(mainLayout, 800, 600);
+        mainLayout.getStyleClass().add("main-container");
+
+        Scene scene = new Scene(mainLayout, 900, 650);
+
+        // Apply global styles
+        _AppStyles.applyStyles(scene);
 
         // Initialize components
         listOfTasksComponent = new _ListOfTasks(this);
@@ -39,7 +44,7 @@ public class MainApplication extends Application {
     // Methods to switch between views
     public void showTaskListView() {
         mainLayout.setCenter(listOfTasksComponent.getView());
-        primaryStage.setTitle("List of Tasks");
+        primaryStage.setTitle("Task Manager - Tasks");
         // Refresh the task list to ensure it's up to date
         listOfTasksComponent.refreshTaskList();
     }
@@ -48,7 +53,7 @@ public class MainApplication extends Application {
         // Set up the add task view for editing if a task is provided
         addATaskComponent.setupForEditing(taskToEdit);
         mainLayout.setCenter(addATaskComponent.getView());
-        primaryStage.setTitle(taskToEdit == null ? "Add a Task" : "Edit Task");
+        primaryStage.setTitle(taskToEdit == null ? "Task Manager - New Task" : "Task Manager - Edit Task");
     }
 
     // Overload for when no task is provided (new task)
@@ -58,7 +63,7 @@ public class MainApplication extends Application {
 
     public void showCalendarView() {
         mainLayout.setCenter(calendarPageComponent.getView());
-        primaryStage.setTitle("Calendar View");
+        primaryStage.setTitle("Task Manager - Calendar");
     }
 
     public static void main(String[] args) {

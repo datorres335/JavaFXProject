@@ -18,7 +18,7 @@ public class _AddATask {
     private MainApplication mainApp;
     private BorderPane view;
 
-    // Form fields as class members so they can be accessed from different methods
+    // Form fields
     private TextField nameField;
     private DatePicker datePicker;
     private TextArea descArea;
@@ -26,7 +26,7 @@ public class _AddATask {
     private Button submitButton;
     private CheckBox completeCheck;
 
-    // Track if we're editing an existing task and which one
+    // Editing state
     private boolean isEditing = false;
     private int editingTaskIndex = -1;
 
@@ -37,21 +37,45 @@ public class _AddATask {
 
     private void createView() {
         view = new BorderPane();
+        view.getStyleClass().add("main-view");
 
-        // Header
-        Label title = new Label("Add a Task");
-        title.setStyle("-fx-font-size: 40px; -fx-font-weight: bold; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-padding: 5; -fx-background-radius: 15;");
-        HBox titleBox = new HBox(10, title);
-        titleBox.setAlignment(Pos.CENTER_LEFT);
+        // Create header
+        BorderPane header = createHeader();
 
-        Button calendarViewBtn = new Button("📅 Calendar View");
-        calendarViewBtn.setOnAction(e -> mainApp.showCalendarView());
+        // Create form
+        VBox form = createForm();
 
-        Button viewTasksBtn = new Button("🔍 View All Tasks");
-        viewTasksBtn.setOnAction(e -> mainApp.showTaskListView());
+        view.setTop(header);
+        view.setCenter(form);
+    }
 
-        completeCheck = new CheckBox("Complete");
-        Button deleteBtn = new Button("🗑");
+    private BorderPane createHeader() {
+        BorderPane header = new BorderPane();
+        header.getStyleClass().add("header");
+
+        // Title
+        Label title = new Label("New Task");
+        title.getStyleClass().add("title-label");
+        title.setId("formTitle"); // For updating when editing
+
+        // Navigation buttons
+        Button backBtn = new Button("Back to Tasks");
+        backBtn.getStyleClass().addAll("button", "view-button");
+        backBtn.setGraphic(createIcon("🔙"));
+        backBtn.setOnAction(e -> mainApp.showTaskListView());
+
+        Button calendarBtn = new Button("Calendar");
+        calendarBtn.getStyleClass().addAll("button", "view-button");
+        calendarBtn.setGraphic(createIcon("📅"));
+        calendarBtn.setOnAction(e -> mainApp.showCalendarView());
+
+        // Task actions (only visible when editing)
+        completeCheck = new CheckBox("Mark as Complete");
+        completeCheck.getStyleClass().add("complete-check");
+
+        Button deleteBtn = new Button("");
+        deleteBtn.getStyleClass().addAll("button", "delete-button");
+        deleteBtn.setGraphic(createIcon("🗑"));
         Tooltip deleteTooltip = new Tooltip("Delete task");
         Tooltip.install(deleteBtn, deleteTooltip);
 
@@ -75,61 +99,82 @@ public class _AddATask {
             }
         });
 
-        HBox topRightBtnsContainer = new HBox(10, completeCheck, deleteBtn);
-        VBox topRightBtns = new VBox(10, calendarViewBtn, viewTasksBtn, topRightBtnsContainer);
-        topRightBtns.setAlignment(Pos.TOP_RIGHT);
+        HBox taskActions = new HBox(15, completeCheck, deleteBtn);
+        taskActions.setAlignment(Pos.CENTER_RIGHT);
+        taskActions.setVisible(false); // Only show when editing
+        taskActions.setId("taskActions");
 
-        BorderPane header = new BorderPane();
+        VBox rightSide = new VBox(15);
+        rightSide.getChildren().addAll(
+                new HBox(15, backBtn, calendarBtn),
+                taskActions
+        );
+        rightSide.setAlignment(Pos.TOP_RIGHT);
+
         header.setLeft(title);
-        header.setRight(topRightBtns);
-        BorderPane.setMargin(title, new Insets(10));
-        BorderPane.setMargin(topRightBtns, new Insets(10));
+        header.setRight(rightSide);
 
-        // Form Elements
-        VBox form = new VBox(10);
-        form.setPadding(new Insets(20));
-        form.setAlignment(Pos.TOP_LEFT);
+        return header;
+    }
 
+    private VBox createForm() {
+        VBox form = new VBox(20);
+        form.getStyleClass().add("form");
+        form.setPadding(new Insets(30));
+
+        // Task name field
         Label nameLabel = new Label("Task Name");
+        nameLabel.getStyleClass().add("form-label");
         nameField = new TextField();
-        nameField.setPromptText("Give the task a name");
+        nameField.setPromptText("Enter task name");
+        nameField.getStyleClass().add("text-field");
 
+        // Date field
         Label dateLabel = new Label("Date");
+        dateLabel.getStyleClass().add("form-label");
         datePicker = new DatePicker();
+        datePicker.setPromptText("Select date");
+        datePicker.getStyleClass().add("date-picker");
 
+        // Description field
         Label descLabel = new Label("Description");
+        descLabel.getStyleClass().add("form-label");
         descArea = new TextArea();
-        descArea.setPromptText("Write a description for the task");
-        descArea.setPrefRowCount(3);
+        descArea.setPromptText("Enter task description");
+        descArea.setPrefRowCount(4);
+        descArea.getStyleClass().add("text-area");
 
+        // Location field
         Label locLabel = new Label("Location");
+        locLabel.getStyleClass().add("form-label");
         locField = new TextField();
-        locField.setPromptText("Enter the location of task");
+        locField.setPromptText("Enter location (optional)");
+        locField.getStyleClass().add("text-field");
 
-        submitButton = new Button("Submit Task");
-        submitButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
-        submitButton.setPrefWidth(120);
+        // Submit button
+        submitButton = new Button("Create Task");
+        submitButton.getStyleClass().addAll("button", "add-button");
+        submitButton.setPrefWidth(150);
 
-        // Create a container for the submit button
-        HBox submitContainer = new HBox(submitButton);
-        submitContainer.setAlignment(Pos.CENTER);
+        // Button container
+        HBox buttonContainer = new HBox(submitButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.setPadding(new Insets(20, 0, 0, 0));
 
+        // Add all elements to form
         form.getChildren().addAll(
-                nameLabel, nameField,
-                dateLabel, datePicker,
-                descLabel, descArea,
-                locLabel, locField,
-                submitContainer
+                createFormGroup(nameLabel, nameField),
+                createFormGroup(dateLabel, datePicker),
+                createFormGroup(descLabel, descArea),
+                createFormGroup(locLabel, locField),
+                buttonContainer
         );
 
         // Add button click handler
         submitButton.setOnAction(event -> {
             if (nameField.getText().isEmpty() || datePicker.getValue() == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Missing Required Fields");
-                alert.setContentText("Please fill in all required fields (Task Name and Date)");
-                alert.showAndWait();
+                showErrorAlert("Missing Required Fields",
+                        "Please fill in all required fields (Task Name and Date)");
                 return;
             }
 
@@ -143,19 +188,14 @@ public class _AddATask {
             if (isEditing && editingTaskIndex >= 0) {
                 // Update existing task
                 _TaskStorage.updateTask(editingTaskIndex, name, date, desc, loc, isComplete);
+                showSuccessAlert("Task Updated", "Task updated successfully!");
             } else {
                 // Save new task
                 _TaskStorage.addTask(name, date, desc, loc);
+                showSuccessAlert("Task Created", "New task created successfully!");
             }
 
             updateTaskList(); // Update the task list in the main view
-
-            // Show confirmation
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Task Saved");
-            alert.setHeaderText(null);
-            alert.setContentText(isEditing ? "Task updated successfully!" : "Task saved successfully!");
-            alert.showAndWait();
 
             // Clear form and reset state
             clearForm();
@@ -164,8 +204,35 @@ public class _AddATask {
             mainApp.showTaskListView();
         });
 
-        view.setTop(header);
-        view.setCenter(form);
+        return form;
+    }
+
+    private VBox createFormGroup(Label label, Control field) {
+        VBox group = new VBox(8);
+        group.getChildren().addAll(label, field);
+        return group;
+    }
+
+    private Label createIcon(String text) {
+        Label icon = new Label(text);
+        icon.setStyle("-fx-font-size: 16px;");
+        return icon;
+    }
+
+    private void showErrorAlert(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showSuccessAlert(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     // Method to set up the form for editing an existing task
@@ -176,8 +243,19 @@ public class _AddATask {
             // New task
             isEditing = false;
             editingTaskIndex = -1;
-            submitButton.setText("Submit Task");
-            completeCheck.setSelected(false);
+            submitButton.setText("Create Task");
+
+            // Update UI elements
+            Label titleLabel = (Label) view.lookup("#formTitle");
+            if (titleLabel != null) {
+                titleLabel.setText("New Task");
+            }
+
+            HBox taskActions = (HBox) view.lookup("#taskActions");
+            if (taskActions != null) {
+                taskActions.setVisible(false);
+            }
+
             return;
         }
 
@@ -196,6 +274,17 @@ public class _AddATask {
         }
 
         if (editingTaskIndex >= 0) {
+            // Update UI elements
+            Label titleLabel = (Label) view.lookup("#formTitle");
+            if (titleLabel != null) {
+                titleLabel.setText("Edit Task");
+            }
+
+            HBox taskActions = (HBox) view.lookup("#taskActions");
+            if (taskActions != null) {
+                taskActions.setVisible(true);
+            }
+
             // Fill the form with task data
             String[] task = _TaskStorage.getTask(editingTaskIndex);
 

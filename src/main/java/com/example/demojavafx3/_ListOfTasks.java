@@ -2,14 +2,19 @@ package com.example.demojavafx3;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class _ListOfTasks {
@@ -17,51 +22,84 @@ public class _ListOfTasks {
     private MainApplication mainApp;
     private BorderPane view;
     private static VBox taskList;
-    private static _ListOfTasks instance; // Add a static reference to the current instance
+    private static _ListOfTasks instance;
 
     public _ListOfTasks(MainApplication mainApp) {
         this.mainApp = mainApp;
-        instance = this; // Store the instance
+        instance = this;
         createView();
     }
 
     private void createView() {
         view = new BorderPane();
+        view.getStyleClass().add("main-view");
 
-        // Title
-        Label title = new Label("List of Tasks");
-        title.setStyle("-fx-font-size: 40px; -fx-font-weight: bold; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-padding: 5; -fx-background-radius: 15;");
+        // Create header with modern design
+        BorderPane header = createHeader();
 
-        HBox titleBox = new HBox(10, title);
-        titleBox.setAlignment(Pos.CENTER_LEFT);
+        // Create task list container
+        taskList = new VBox(10);
+        taskList.getStyleClass().add("task-list");
+        taskList.setPadding(new Insets(20));
 
-        // Top right buttons
-        Button calendarViewBtn = new Button("📅 Calendar View");
-        calendarViewBtn.setOnAction(e -> mainApp.showCalendarView());
-
-        Button addTaskBtn = new Button("➕   Add a Task   ");
-        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView(null)); // Pass null for a new task
-
-        VBox rightButtons = new VBox(10, calendarViewBtn, addTaskBtn);
-        rightButtons.setAlignment(Pos.CENTER_RIGHT);
-
-        // Header layout
-        BorderPane header = new BorderPane();
-        header.setLeft(titleBox);
-        header.setRight(rightButtons);
-        header.setPadding(new Insets(10, 20, 10, 20));
-
-        // List of tasks
-        taskList = new VBox(5);
-        taskList.setPadding(new Insets(10));
-        refreshTaskList();
-
+        // Create scroll pane for task list
         ScrollPane scrollPane = new ScrollPane(taskList);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: #f9f9f9;");
+        scrollPane.getStyleClass().add("task-scroll-pane");
+
+        // Add empty state message
+        Label emptyStateLabel = new Label("No tasks yet. Click the '+' button to add your first task!");
+        emptyStateLabel.setTextAlignment(TextAlignment.CENTER);
+        emptyStateLabel.getStyleClass().add("empty-state-label");
+        emptyStateLabel.setVisible(false);
+
+        // Create a stack pane to show either the task list or empty state
+        StackPane centerContent = new StackPane(scrollPane, emptyStateLabel);
 
         view.setTop(header);
-        view.setCenter(scrollPane);
+        view.setCenter(centerContent);
+
+        // Load tasks
+        refreshTaskList();
+
+        // Show empty state if no tasks
+        if (_TaskStorage.getTasks().isEmpty()) {
+            emptyStateLabel.setVisible(true);
+        }
+    }
+
+    private BorderPane createHeader() {
+        BorderPane header = new BorderPane();
+        header.getStyleClass().add("header");
+
+        // Title with icon
+        Label title = new Label("My Tasks");
+        title.getStyleClass().add("title-label");
+
+        // Action buttons
+        Button calendarViewBtn = new Button("Calendar View");
+        calendarViewBtn.getStyleClass().addAll("button", "view-button");
+        calendarViewBtn.setGraphic(createIcon("📅"));
+        calendarViewBtn.setOnAction(e -> mainApp.showCalendarView());
+
+        Button addTaskBtn = new Button("Add Task");
+        addTaskBtn.getStyleClass().addAll("button", "add-button");
+        addTaskBtn.setGraphic(createIcon("➕"));
+        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView(null));
+
+        HBox actionButtons = new HBox(15, calendarViewBtn, addTaskBtn);
+        actionButtons.setAlignment(Pos.CENTER_RIGHT);
+
+        header.setLeft(title);
+        header.setRight(actionButtons);
+
+        return header;
+    }
+
+    private Label createIcon(String text) {
+        Label icon = new Label(text);
+        icon.setStyle("-fx-font-size: 16px;");
+        return icon;
     }
 
     public BorderPane getView() {
@@ -72,47 +110,76 @@ public class _ListOfTasks {
         taskList.getChildren().clear();
         List<String[]> tasks = _TaskStorage.getTasks();
 
+        // Show or hide empty state message
+        Node emptyStateLabel = ((StackPane) view.getCenter()).getChildren().get(1);
+        emptyStateLabel.setVisible(tasks.isEmpty());
+
         for (int i = 0; i < tasks.size(); i++) {
             String[] task = tasks.get(i);
-            final int taskIndex = i; // Need final variable for lambda
+            final int taskIndex = i;
 
-            HBox row = new HBox(10);
-            row.setAlignment(Pos.CENTER_LEFT);
-            row.setPadding(new Insets(5));
-            row.setStyle("-fx-background-color: #eeeeee; -fx-background-radius: 4;");
+            // Create a card for each task
+            VBox taskCard = new VBox(8);
+            taskCard.getStyleClass().add("task-card");
 
-            // date, name, desc, loc
-            Label date = new Label(task[0]);
-            Label name = new Label(task[1]);
-            Label desc = new Label(task[2]);
-            Label loc = new Label(task[3]);
+            // Format date
+            String dateStr = task[0];
+            try {
+                LocalDate date = LocalDate.parse(dateStr);
+                dateStr = date.format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            } catch (Exception e) {
+                // Use the original string if parsing fails
+            }
 
-            row.getChildren().addAll(date, name, desc, loc);
+            // Task date
+            Label dateLabel = new Label(dateStr);
+            dateLabel.getStyleClass().add("task-date");
 
-            // Make the row clickable
-            row.setOnMouseEntered(e -> {
-                row.setStyle("-fx-background-color: #e0e0e0; -fx-background-radius: 4; -fx-cursor: hand;");
-            });
+            // Task name
+            Label nameLabel = new Label(task[1]);
+            nameLabel.getStyleClass().add("task-name");
 
-            row.setOnMouseExited(e -> {
-                row.setStyle("-fx-background-color: #eeeeee; -fx-background-radius: 4;");
-            });
+            // Task description (if available)
+            VBox contentBox = new VBox(5);
+            if (task[2] != null && !task[2].isEmpty()) {
+                Label descLabel = new Label(task[2]);
+                descLabel.getStyleClass().add("task-description");
+                descLabel.setWrapText(true);
+                contentBox.getChildren().add(descLabel);
+            }
 
-            row.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                // Navigate to edit task view with the selected task
+            // Task location (if available)
+            if (task[3] != null && !task[3].isEmpty()) {
+                Label locLabel = new Label(task[3]);
+                locLabel.getStyleClass().add("task-location");
+                locLabel.setGraphic(createIcon("📍"));
+                contentBox.getChildren().add(locLabel);
+            }
+
+            // Check if task is completed
+            boolean isCompleted = task.length > 4 && Boolean.parseBoolean(task[4]);
+            if (isCompleted) {
+                nameLabel.getStyleClass().add("task-completed");
+                Label completedLabel = new Label("Completed");
+                completedLabel.getStyleClass().add("task-completed-label");
+                contentBox.getChildren().add(completedLabel);
+            }
+
+            // Add all elements to the card
+            taskCard.getChildren().addAll(dateLabel, nameLabel, contentBox);
+
+            // Make the card clickable
+            taskCard.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                 mainApp.showAddTaskView(task);
             });
 
-            taskList.getChildren().add(row);
+            taskList.getChildren().add(taskCard);
         }
     }
 
     // Static method for updating from other classes
     public static void updateTaskList() {
-        // This is a static method that will be called from other classes
-        // We need to make sure the taskList is initialized before updating
         if (taskList != null) {
-            // If we have an instance, use its refreshTaskList method to get clickable rows
             if (instance != null) {
                 instance.refreshTaskList();
             } else {
@@ -124,10 +191,12 @@ public class _ListOfTasks {
                     HBox row = new HBox(10);
                     row.setAlignment(Pos.CENTER_LEFT);
                     row.setPadding(new Insets(5));
-                    row.setStyle("-fx-background-color: #eeeeee; -fx-background-radius: 4;");
+                    row.getStyleClass().add("task-row");
+
                     Label date = new Label(task[0]);
-                    Label desc = new Label(task[1]);
-                    row.getChildren().addAll(date, desc);
+                    Label name = new Label(task[1]);
+
+                    row.getChildren().addAll(date, name);
                     taskList.getChildren().add(row);
                 }
             }

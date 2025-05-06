@@ -30,6 +30,60 @@ public class _CalenderPage {
 
     private void createView() {
         view = new BorderPane();
+        view.getStyleClass().add("main-view");
+
+        // Create header
+        BorderPane header = createHeader();
+
+        // Create calendar content
+        BorderPane calendarContent = createCalendarContent();
+
+        view.setTop(header);
+        view.setCenter(calendarContent);
+    }
+
+    private BorderPane createHeader() {
+        BorderPane header = new BorderPane();
+        header.getStyleClass().add("header");
+
+        // Title
+        Label title = new Label("Calendar");
+        title.getStyleClass().add("title-label");
+
+        // Navigation buttons
+        Button tasksBtn = new Button("View Tasks");
+        tasksBtn.getStyleClass().addAll("button", "view-button");
+        tasksBtn.setGraphic(createIcon("🔍"));
+        tasksBtn.setOnAction(e -> mainApp.showTaskListView());
+
+        Button addTaskBtn = new Button("Add Task");
+        addTaskBtn.getStyleClass().addAll("button", "add-button");
+        addTaskBtn.setGraphic(createIcon("➕"));
+        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView(null));
+
+        HBox actionButtons = new HBox(15, tasksBtn, addTaskBtn);
+        actionButtons.setAlignment(Pos.CENTER_RIGHT);
+
+        header.setLeft(title);
+        header.setRight(actionButtons);
+
+        return header;
+    }
+
+    private BorderPane createCalendarContent() {
+        // Use BorderPane instead of VBox for better layout control
+        BorderPane content = new BorderPane();
+        content.getStyleClass().add("calendar-content");
+        content.setPadding(new Insets(20));
+
+        // Top section with month/year selector and label
+        VBox topSection = new VBox(10);
+        topSection.setAlignment(Pos.CENTER);
+
+        // Month and year selector
+        HBox dateSelector = new HBox(15);
+        dateSelector.getStyleClass().add("date-selector");
+        dateSelector.setAlignment(Pos.CENTER);
 
         // Month selection combo box
         ComboBox<String> monthComboBox = new ComboBox<>();
@@ -37,49 +91,52 @@ public class _CalenderPage {
         monthComboBox.getItems().addAll("January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December");
         monthComboBox.setValue(LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM")));
+        monthComboBox.getStyleClass().add("month-selector");
 
-        // year selection text field
+        // Year selection text field
         TextField yearField = new TextField(String.valueOf(LocalDate.now().getYear()));
-        yearField.setPrefWidth(80); // Make it smaller than default
+        yearField.setPrefWidth(100);
         yearField.setPromptText("YYYY");
+        yearField.getStyleClass().add("year-selector");
 
-        HBox titleBox = new HBox(10, monthComboBox, yearField);
-        titleBox.setAlignment(Pos.CENTER_LEFT);
-
-        // Top right buttons
-        Button viewTasksBtn = new Button("🔍 View All Tasks");
-        viewTasksBtn.setOnAction(e -> mainApp.showTaskListView());
-
-        Button addTaskBtn = new Button("➕   Add a Task   ");
-        addTaskBtn.setOnAction(e -> mainApp.showAddTaskView(null));
-
-        VBox rightButtons = new VBox(10, viewTasksBtn, addTaskBtn);
-        rightButtons.setAlignment(Pos.CENTER_RIGHT);
-
-        // Header layout
-        BorderPane header = new BorderPane();
-        header.setLeft(titleBox);
-        header.setRight(rightButtons);
-        header.setPadding(new Insets(10, 20, 10, 20));
+        dateSelector.getChildren().addAll(monthComboBox, yearField);
 
         // Current month and year label
         Label monthYearLabel = new Label();
-        monthYearLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        monthYearLabel.getStyleClass().add("month-year-label");
         updateMonthYearLabel(monthYearLabel);
 
-        // Create the CalendarFX month view
+        topSection.getChildren().addAll(dateSelector, monthYearLabel);
+
+        // Calendar view - this will expand to fill available space
         MonthView monthView = new MonthView();
         monthView.setShowToday(true);
         monthView.setShowWeekNumbers(false);
+        monthView.getStyleClass().add("calendar-view");
 
-        // Layout setup
-        VBox topSection = new VBox(10, header);
-        view.setTop(topSection);
+        // Make the month view expand to fill available space
+        monthView.setPrefHeight(Double.MAX_VALUE);
+        monthView.setMaxHeight(Double.MAX_VALUE);
 
-        VBox centerContent = new VBox(10, monthYearLabel, monthView);
-        centerContent.setAlignment(Pos.TOP_CENTER);
-        view.setCenter(centerContent);
+        // Add custom styling to the calendar
+        monthView.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+        );
 
+        // Load custom CSS file for calendar styling
+        String customCssPath = getClass().getResource("_calendar-styles.css").toExternalForm();
+        monthView.getStylesheets().add(customCssPath);
+
+        // Set up the BorderPane layout
+        content.setTop(topSection);
+        content.setCenter(monthView);
+
+        // Add margin to the top section
+        BorderPane.setMargin(topSection, new Insets(0, 0, 10, 0));
+
+        // Set up month and year change handlers
         monthComboBox.setOnAction(event -> {
             String selectedMonth = monthComboBox.getValue();
             int year = Integer.parseInt(yearField.getText());
@@ -143,8 +200,13 @@ public class _CalenderPage {
             }
         });
 
-        BorderPane.setMargin(topSection, new Insets(10));
-        BorderPane.setMargin(centerContent, new Insets(10));
+        return content;
+    }
+
+    private Label createIcon(String text) {
+        Label icon = new Label(text);
+        icon.setStyle("-fx-font-size: 16px;");
+        return icon;
     }
 
     private void updateMonthYearLabel(Label label) {
